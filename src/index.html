@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    <title>Fesnuk</title>
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+    />
+
+    <script type="module" src="/scripts/index.js"></script>
+
+    <!-- Initial loading script -->
+    <script>
+      // Pastikan selalu ada route awal
+      window.addEventListener("DOMContentLoaded", function () {
+        // Jika tidak ada hash, redirect ke / (aplikasi akan menangani auth)
+        if (window.location.hash === "") {
+          console.log("No hash detected, setting default route");
+          window.location.hash = "#/";
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="main-header container">
+        <a class="brand-name" href="#/">FESNUK</a>
+
+        <nav id="navigation-drawer" class="navigation-drawer">
+          <ul id="nav-list" class="nav-list">
+            <li>
+              <a href="#/">Beranda</a>
+            </li>
+            <li>
+              <a href="#/guest" class="guest-link">Tambah Cerita (Tamu)</a>
+            </li>
+            <li class="auth-only" style="display: none">
+              <a href="#/add">Tambah Cerita</a>
+            </li>
+            <li><a href="#/about">About</a></li>
+            <li class="auth-only" style="display: none">
+              <a href="#/notifications"
+                ><i class="fas fa-bell"></i> Notifikasi</a
+              >
+            </li>
+            <li id="logoutButton" class="auth-only" style="display: none">
+              <a href="#" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <button
+          id="drawer-button"
+          class="drawer-button"
+          aria-label="Toggle navigation menu"
+        >
+          ☰
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content" class="main-content">
+      <!-- Loading indicator -->
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Memuat aplikasi...</p>
+      </div>
+    </main>
+  </body>
+  <footer></footer>
+</html>
