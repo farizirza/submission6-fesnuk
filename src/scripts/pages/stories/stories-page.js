@@ -17,7 +17,7 @@ class StoriesPage {
           <a href="#main-story-content" class="skip-to-content">Skip to Content</a>
         </div>
 
-        <div id="main-story-content" class="stories-list">
+        <div id="main-story-content" class="stories-list" tabindex="-1">
           <div id="stories" class="stories-grid">
             ${this._createSkeletonLoading()}
           </div>
@@ -55,6 +55,19 @@ class StoriesPage {
 
   async afterRender() {
     try {
+      // Setup skip-to-content
+      const skipLink = document.querySelector(".skip-to-content");
+      const mainContent = document.getElementById("main-story-content");
+
+      if (skipLink && mainContent) {
+        skipLink.addEventListener("click", (event) => {
+          event.preventDefault();
+          skipLink.blur();
+          mainContent.focus();
+          mainContent.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+
       // Tambahkan indikator loading awal yang jelas
       const paginationContainer = document.querySelector(
         "#pagination-container"

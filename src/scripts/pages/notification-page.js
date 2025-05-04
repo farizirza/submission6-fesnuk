@@ -171,4 +171,8 @@ class NotificationPage {
   }
 }
 
-export default NotificationPage;
+const createNotificationPage = () => {
+  return new NotificationPage();
+};
+
+export default createNotificationPage;

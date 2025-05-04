@@ -94,24 +94,8 @@ class StoryModel {
         throw new Error(responseJson.message);
       }
 
-      // Tampilkan notifikasi sukses
-      showInAppNotification({
-        title: "Registrasi Berhasil",
-        message: "Akun Anda berhasil dibuat. Silakan login.",
-        type: "success",
-        duration: 5000,
-      });
-
       return responseJson;
     } catch (error) {
-      // Tampilkan notifikasi error
-      showInAppNotification({
-        title: "Registrasi Gagal",
-        message: error.message,
-        type: "error",
-        duration: 7000,
-      });
-
       throw error;
     }
   }
@@ -134,24 +118,8 @@ class StoryModel {
 
       this.setToken(responseJson.loginResult.token);
 
-      // Tampilkan notifikasi sukses
-      showInAppNotification({
-        title: "Login Berhasil",
-        message: "Selamat datang kembali!",
-        type: "success",
-        duration: 3000,
-      });
-
       return responseJson;
     } catch (error) {
-      // Tampilkan notifikasi error
-      showInAppNotification({
-        title: "Login Gagal",
-        message: error.message,
-        type: "error",
-        duration: 5000,
-      });
-
       throw error;
     }
   }

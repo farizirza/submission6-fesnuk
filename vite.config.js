@@ -20,7 +20,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 5174,
     cors: true,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -31,7 +31,7 @@ export default defineConfig({
     hmr: {
       protocol: "ws",
       host: "localhost",
-      port: 5173,
+      port: 5174,
     },
   },
 });

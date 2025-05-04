@@ -1,4 +1,5 @@
 import { addGuestStory } from "../../data/api";
+import GuestStoryPresenter from "../../presenters/GuestStoryPresenter";
 
 class GuestStoryPage {
   #map = null;
@@ -6,6 +7,12 @@ class GuestStoryPage {
   #selectedLocation = null;
   #photoPreview = null;
   #selectedFile = null;
+  #presenter = null;
+
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+    this.#presenter = new GuestStoryPresenter(storyModel, this);
+  }
 
   async render() {
     return `
@@ -232,8 +239,7 @@ class GuestStoryPage {
           storyData.lon = this.#selectedLocation.lng;
         }
 
-        await addGuestStory(storyData);
-        window.location.hash = "#/";
+        await this.#presenter.addGuestStory(storyData);
       } catch (error) {
         alert(`Error: ${error.message}`);
       }
@@ -241,4 +247,8 @@ class GuestStoryPage {
   }
 }
 
-export default GuestStoryPage;
+const createGuestStoryPage = (storyModel) => {
+  return new GuestStoryPage(storyModel);
+};
+
+export default createGuestStoryPage;

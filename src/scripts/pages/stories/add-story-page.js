@@ -1,4 +1,5 @@
 import { addStory } from "../../data/api";
+import AddStoryPresenter from "../../presenters/AddStoryPresenter";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif"];
@@ -9,6 +10,12 @@ class AddStoryPage {
   #selectedLocation = null;
   #photoPreview = null;
   #selectedFile = null;
+  #presenter = null;
+
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+    this.#presenter = new AddStoryPresenter(storyModel, this);
+  }
 
   async render() {
     return `
@@ -278,8 +285,7 @@ class AddStoryPage {
           storyData.lon = this.#selectedLocation.lng;
         }
 
-        await addStory(storyData);
-        window.location.hash = "#/";
+        await this.#presenter.addStory(storyData);
       } catch (error) {
         alert(`Error: ${error.message}`);
       }
@@ -287,4 +293,8 @@ class AddStoryPage {
   }
 }
 
-export default AddStoryPage;
+const createAddStoryPage = (storyModel) => {
+  return new AddStoryPage(storyModel);
+};
+
+export default createAddStoryPage;

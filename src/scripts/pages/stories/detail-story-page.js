@@ -17,7 +17,7 @@ class DetailStoryPage {
           <a href="#main-content" class="skip-to-content">Skip to Content</a>
         </div>
 
-        <div id="main-content" class="story-detail">
+        <div id="main-content" class="story-detail" tabindex="-1">
           <div class="loading-indicator">Loading story...</div>
         </div>
       </section>
@@ -26,6 +26,19 @@ class DetailStoryPage {
 
   async afterRender() {
     try {
+      // Setup skip-to-content
+      const skipLink = document.querySelector(".skip-to-content");
+      const mainContent = document.getElementById("main-content");
+
+      if (skipLink && mainContent) {
+        skipLink.addEventListener("click", (event) => {
+          event.preventDefault();
+          skipLink.blur();
+          mainContent.focus();
+          mainContent.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+
       const { id } = parseActivePathname();
       await this.presenter.loadStoryDetail(id);
     } catch (error) {
