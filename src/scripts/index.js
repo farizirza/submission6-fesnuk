@@ -8,7 +8,8 @@ import L from "leaflet";
 import App from "./pages/app";
 import { showInAppNotification } from "./utils/in-app-notification";
 import { setupNetworkStatusNotifier } from "./utils/network-status";
-import { getToken } from "./data/api";
+import StoryModel from "./models/StoryModel";
+import setupSkipToContent from "./utils/skip-to-content";
 
 // Fix Leaflet's icon paths
 delete L.Icon.Default.prototype._getIconUrl;
@@ -33,12 +34,15 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Initialize the story model
+const storyModel = new StoryModel();
+
 // Fungsi untuk menangani rute default
 function handleDefaultRoute() {
   // Jika tidak ada hash, atur hash ke halaman beranda atau auth
   if (window.location.hash === "") {
     // Cek login status
-    const isLoggedIn = !!getToken();
+    const isLoggedIn = !!storyModel.getToken();
 
     // Redirect ke halaman beranda jika sudah login, otherwise ke auth
     window.location.hash = isLoggedIn ? "#/" : "#/auth";
@@ -50,6 +54,9 @@ function handleDefaultRoute() {
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM fully loaded, initializing app...");
 
+  // Initialize skip to content functionality
+  setupSkipToContent();
+
   // Inisialisasi network status notifier
   setupNetworkStatusNotifier();
 
@@ -57,9 +64,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const redirected = handleDefaultRoute();
 
   const app = new App({
-    content: document.querySelector("#main-content"),
+    content: document.querySelector("#mainContent"),
     drawerButton: document.querySelector("#drawer-button"),
     navigationDrawer: document.querySelector("#navigation-drawer"),
+    storyModel: storyModel,
   });
 
   try {

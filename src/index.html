@@ -26,13 +26,28 @@
       window.addEventListener("DOMContentLoaded", function () {
         // Jika tidak ada hash, redirect ke / (aplikasi akan menangani auth)
         if (window.location.hash === "") {
-          console.log("No hash detected, setting default route");
           window.location.hash = "#/";
+        }
+
+        // Initialize skip to content functionality
+        const mainContent = document.querySelector("#mainContent");
+        const skipLink = document.querySelector(".skip-link");
+
+        if (skipLink && mainContent) {
+          skipLink.addEventListener("click", function (event) {
+            event.preventDefault(); // Mencegah refresh halaman
+            skipLink.blur(); // Menghilangkan fokus skip to content
+
+            mainContent.focus(); // Fokus ke konten utama
+            mainContent.scrollIntoView(); // Halaman scroll ke konten utama
+          });
         }
       });
     </script>
   </head>
   <body>
+    <a href="#mainContent" class="skip-link">Skip to Content</a>
+
     <header>
       <div class="main-header container">
         <a class="brand-name" href="#/">FESNUK</a>
@@ -48,7 +63,7 @@
             <li class="auth-only" style="display: none">
               <a href="#/add">Tambah Cerita</a>
             </li>
-            <li><a href="#/about">About</a></li>
+            <li><a href="#/about">Tentang</a></li>
             <li class="auth-only" style="display: none">
               <a href="#/notifications"
                 ><i class="fas fa-bell"></i> Notifikasi</a
@@ -72,7 +87,7 @@
       </div>
     </header>
 
-    <main id="main-content" class="main-content">
+    <main id="mainContent" class="main-content" tabindex="-1">
       <!-- Loading indicator -->
       <div class="loading-container">
         <div class="loading-spinner"></div>

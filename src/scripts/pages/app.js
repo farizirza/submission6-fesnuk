@@ -1,17 +1,18 @@
 import routes from "../routes/routes";
 import { getActiveRoute } from "../routes/url-parser";
-import { getToken, logout } from "../data/api";
 import { showInAppNotification } from "../utils/in-app-notification";
 
 class App {
   #content = null;
   #drawerButton = null;
   #navigationDrawer = null;
+  #storyModel = null;
 
-  constructor({ navigationDrawer, drawerButton, content }) {
+  constructor({ navigationDrawer, drawerButton, content, storyModel }) {
     this.#content = content;
     this.#drawerButton = drawerButton;
     this.#navigationDrawer = navigationDrawer;
+    this.#storyModel = storyModel;
 
     this.#setupDrawer();
     this.#setupLogout();
@@ -45,8 +46,11 @@ class App {
     if (logoutButton) {
       logoutButton.addEventListener("click", (e) => {
         e.preventDefault();
-        logout();
+        this.#storyModel.logout();
         this.#updateAuthUI();
+
+        // Force redirecting to auth page after logout
+        window.location.hash = "#/auth";
       });
     }
   }
@@ -54,7 +58,7 @@ class App {
   #updateAuthUI() {
     const authOnlyElements = document.querySelectorAll(".auth-only");
     const guestLink = document.querySelector(".guest-link");
-    const isAuthenticated = !!getToken();
+    const isAuthenticated = !!this.#storyModel.getToken();
 
     authOnlyElements.forEach((element) => {
       element.style.display = isAuthenticated ? "block" : "none";
@@ -97,20 +101,24 @@ class App {
       // Redirect to default route if URL is not valid
       if (!url || !routes[url]) {
         console.log("Route not found, redirecting to default page");
-        window.location.hash = getToken() ? "#/" : "#/auth";
+        window.location.hash = this.#storyModel.getToken() ? "#/" : "#/auth";
         return;
       }
 
       const page = routes[url];
 
+      // Initialize the page with the story model if it's a factory function
+      const pageInstance =
+        typeof page === "function" ? page(this.#storyModel) : page;
+
       if ("startViewTransition" in document) {
         await document.startViewTransition(async () => {
-          this.#content.innerHTML = await page.render();
-          await page.afterRender();
+          this.#content.innerHTML = await pageInstance.render();
+          await pageInstance.afterRender();
         }).finished;
       } else {
-        this.#content.innerHTML = await page.render();
-        await page.afterRender();
+        this.#content.innerHTML = await pageInstance.render();
+        await pageInstance.afterRender();
       }
 
       this.#updateAuthUI();
