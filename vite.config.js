@@ -19,4 +19,13 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    host: true, // Listen on all local IPs
+    strictPort: true, // If port is already in use, exit instead of trying another
+    hmr: {
+      // Fix WebSocket connection issues
+      clientPort: null, // Use the same port as the server
+      overlay: true, // Show errors as overlay
+    },
+  },
 });

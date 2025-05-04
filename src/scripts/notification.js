@@ -29,12 +29,19 @@ async function showTestNotification() {
 
   try {
     const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification("Test Notification", {
-      body: "This is a test notification to check if notifications are working",
-      icon: "/images/logo.png",
-      badge: "/images/logo.png",
-      vibrate: [100, 50, 100],
-    });
+
+    // Use the exact JSON schema format for notifications
+    const notificationData = {
+      title: "Story berhasil dibuat",
+      options: {
+        body: "Anda telah membuat story baru dengan deskripsi: <story description>",
+      },
+    };
+
+    await registration.showNotification(
+      notificationData.title,
+      notificationData.options
+    );
     console.log("Test notification sent successfully");
   } catch (error) {
     console.error("Error showing test notification:", error);

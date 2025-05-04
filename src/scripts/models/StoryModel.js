@@ -313,9 +313,11 @@ class StoryModel {
         ) {
           this.sendStoryNotification(description);
         } else {
-          new Notification("Cerita baru ditambahkan", {
-            body: description.substring(0, 100) + "...",
-            icon: "/favicon.png",
+          new Notification("Story berhasil dibuat", {
+            body: `Anda telah membuat story baru dengan deskripsi: ${description.substring(
+              0,
+              100
+            )}${description.length > 100 ? "..." : ""}`,
           });
         }
       } catch (error) {
@@ -329,23 +331,12 @@ class StoryModel {
       registration.active.postMessage({
         type: "SHOW_NOTIFICATION",
         payload: {
-          title: "Cerita baru ditambahkan",
+          title: "Story berhasil dibuat",
           options: {
-            body: description.substring(0, 100) + "...",
-            icon: "/favicon.png",
-            badge: "/favicon.png",
-            tag: "new-story-" + Date.now(),
-            renotify: true,
-            actions: [
-              {
-                action: "view-story",
-                title: "Lihat Cerita",
-              },
-              {
-                action: "close",
-                title: "Tutup",
-              },
-            ],
+            body: `Anda telah membuat story baru dengan deskripsi: ${description.substring(
+              0,
+              100
+            )}${description.length > 100 ? "..." : ""}`,
           },
         },
       });

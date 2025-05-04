@@ -1,6 +1,8 @@
 // Service Worker for handling cache and push notifications
 const CACHE_NAME = "fesnuk-v1";
 const BASE_URL = "https://story-api.dicoding.dev/v1";
+const VAPID_PUBLIC_KEY =
+  "BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk";
 
 // Cache pages and assets on install
 self.addEventListener("install", (event) => {
@@ -91,12 +93,11 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("push", (event) => {
   console.log("Push notification received:", event);
 
+  // Default notification data in case parsing fails
   let notificationData = {
-    title: "Fesnuk App",
+    title: "Story berhasil dibuat",
     options: {
-      body: "Ada berita baru dari Fesnuk!",
-      icon: "/favicon.png",
-      badge: "/favicon.png",
+      body: "Anda telah membuat story baru dengan deskripsi: <story description>",
     },
   };
 
@@ -104,10 +105,19 @@ self.addEventListener("push", (event) => {
   if (event.data) {
     try {
       notificationData = event.data.json();
+      console.log("Push data received:", notificationData);
     } catch (e) {
       console.error("Error parsing push data:", e);
     }
   }
+
+  // Following the exact JSON schema:
+  // {
+  //   "title": "Story berhasil dibuat",
+  //   "options": {
+  //     "body": "Anda telah membuat story baru dengan deskripsi: <story description>"
+  //   }
+  // }
 
   event.waitUntil(
     self.registration.showNotification(
