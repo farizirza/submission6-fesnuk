@@ -60,12 +60,12 @@ const wrapWithDispose = (pageFactory) => {
 
 const routes = {
   "/": checkAuth(StoriesPage),
-  "/about": wrapWithDispose(new AboutPage()),
-  "/add": checkAuth((model) => new AddStoryPage(model)),
-  "/guest": wrapWithDispose((model) => new GuestStoryPage(model)),
-  "/auth": wrapWithDispose((model) => new AuthPage(model)),
-  "/stories/:id": checkAuth((model) => new DetailStoryPage(model)),
-  "/notifications": checkAuth((model) => new NotificationPage(model)),
+  "/about": wrapWithDispose(AboutPage),
+  "/add": checkAuth(AddStoryPage),
+  "/guest": wrapWithDispose(GuestStoryPage),
+  "/auth": wrapWithDispose(AuthPage),
+  "/stories/:id": checkAuth(DetailStoryPage),
+  "/notifications": checkAuth(NotificationPage),
 };
 
 export default routes;

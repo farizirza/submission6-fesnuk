@@ -1,9 +1,14 @@
-import { getStoryDetail } from "../../data/api";
-import { showFormattedDate } from "../../utils";
 import { parseActivePathname } from "../../routes/url-parser";
+import { showFormattedDate } from "../../utils";
+import DetailStoryPresenter from "../../presenters/DetailStoryPresenter";
 
 class DetailStoryPage {
   #map = null;
+
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+    this.presenter = new DetailStoryPresenter(storyModel, this);
+  }
 
   async render() {
     return `
@@ -22,19 +27,14 @@ class DetailStoryPage {
   async afterRender() {
     try {
       const { id } = parseActivePathname();
-      const story = await getStoryDetail(id);
-
-      this._displayStoryDetail(story);
-      if (story.lat && story.lon) {
-        this._initializeMap(story);
-      }
+      await this.presenter.loadStoryDetail(id);
     } catch (error) {
       console.error("Error loading story:", error);
-      this._displayError(error.message);
+      this.renderError(error.message);
     }
   }
 
-  _displayStoryDetail(story) {
+  renderStoryDetail(story) {
     const mainContent = document.getElementById("main-content");
     mainContent.innerHTML = `
       <article class="story-detail-content">
@@ -62,7 +62,7 @@ class DetailStoryPage {
     `;
   }
 
-  _displayError(message) {
+  renderError(message) {
     const mainContent = document.getElementById("main-content");
     mainContent.innerHTML = `
       <div class="error-container">
@@ -72,6 +72,10 @@ class DetailStoryPage {
         </a>
       </div>
     `;
+  }
+
+  renderMap(story) {
+    this._initializeMap(story);
   }
 
   _initializeMap(story) {
@@ -94,4 +98,5 @@ class DetailStoryPage {
   }
 }
 
-export default DetailStoryPage;
+// Use factory function to create DetailStoryPage with model dependency
+export default (storyModel) => new DetailStoryPage(storyModel);

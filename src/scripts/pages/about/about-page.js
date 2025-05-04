@@ -1,4 +1,8 @@
-export default class AboutPage {
+class AboutPage {
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+  }
+
   async render() {
     return `
       <section class="container about-section">
@@ -46,6 +50,9 @@ export default class AboutPage {
   }
 
   async afterRender() {
-    // Animations could be added here if needed
+    // Not needed for static page
   }
 }
+
+// Use factory function to create AboutPage with model dependency
+export default (storyModel) => new AboutPage(storyModel);

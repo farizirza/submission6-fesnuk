@@ -1,6 +1,11 @@
-import { login, register } from "../../data/api";
+import AuthPresenter from "../../presenters/AuthPresenter";
 
 class AuthPage {
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+    this.presenter = new AuthPresenter(storyModel, this);
+  }
+
   async render() {
     return `
       <section class="container">
@@ -75,10 +80,15 @@ class AuthPage {
     });
   }
 
-  _showError(message) {
+  showError(message) {
     const authError = document.getElementById("authError");
     authError.textContent = message;
     authError.style.display = "block";
+  }
+
+  showRegisterSuccess() {
+    alert("Registrasi berhasil! Silakan login.");
+    document.getElementById("loginTab").click();
   }
 
   _setupLoginForm() {
@@ -90,12 +100,7 @@ class AuthPage {
       const email = document.getElementById("loginEmail").value;
       const password = document.getElementById("loginPassword").value;
 
-      try {
-        await login({ email, password });
-        window.location.hash = "#/";
-      } catch (error) {
-        this._showError(error.message);
-      }
+      await this.presenter.login({ email, password });
     });
   }
 
@@ -118,14 +123,13 @@ class AuthPage {
           throw new Error("Nama harus minimal 3 karakter");
         }
 
-        await register({ name, email, password });
-        alert("Registrasi berhasil! Silakan login.");
-        document.getElementById("loginTab").click();
+        await this.presenter.register({ name, email, password });
       } catch (error) {
-        this._showError(error.message);
+        this.showError(error.message);
       }
     });
   }
 }
 
-export default AuthPage;
+// Use factory function to create AuthPage with model dependency
+export default (storyModel) => new AuthPage(storyModel);

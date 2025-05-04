@@ -1,4 +1,8 @@
-export default class HomePage {
+class HomePage {
+  constructor(storyModel) {
+    this.storyModel = storyModel;
+  }
+
   async render() {
     return `
       <section class="container">
@@ -11,3 +15,6 @@ export default class HomePage {
     // Do your job here
   }
 }
+
+// Use factory function to create HomePage with model dependency
+export default (storyModel) => new HomePage(storyModel);

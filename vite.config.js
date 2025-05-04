@@ -20,12 +20,18 @@ export default defineConfig({
     },
   },
   server: {
-    host: true, // Listen on all local IPs
-    strictPort: true, // If port is already in use, exit instead of trying another
+    port: 5173,
+    cors: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "X-Requested-With, content-type, Authorization",
+    },
     hmr: {
-      // Fix WebSocket connection issues
-      clientPort: null, // Use the same port as the server
-      overlay: true, // Show errors as overlay
+      protocol: "ws",
+      host: "localhost",
+      port: 5173,
     },
   },
 });
