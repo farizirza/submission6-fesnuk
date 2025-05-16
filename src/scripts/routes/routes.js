@@ -6,6 +6,8 @@ import GuestStoryPage from "../pages/stories/guest-story-page";
 import DetailStoryPage from "../pages/stories/detail-story-page";
 import AuthPage from "../pages/auth/auth-page";
 import NotificationPage from "../pages/notification-page";
+import OfflineStoriesPage from "../pages/offline/offline-stories-page";
+import NotFoundPage from "../pages/not-found-page";
 
 let currentPage = null;
 
@@ -66,6 +68,13 @@ const routes = {
   "/auth": wrapWithDispose(AuthPage),
   "/stories/:id": checkAuth(DetailStoryPage),
   "/notifications": checkAuth(NotificationPage),
+  "/offline": checkAuth(OfflineStoriesPage),
 };
 
+// Function to get the current route or return NotFoundPage if route doesn't exist
+const getRoute = (url) => {
+  return routes[url] || wrapWithDispose(NotFoundPage);
+};
+
+export { routes, getRoute };
 export default routes;

@@ -1,0 +1,71 @@
+{
+  "name": "Fesnuk - Story Sharing App",
+  "short_name": "Fesnuk",
+  "description": "Share your stories and experiences with the world",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a6572",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add New Story",
+      "short_name": "Add Story",
+      "description": "Create a new story",
+      "url": "/#/add",
+      "icons": [
+        {
+          "src": "/icons/add-story-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Add Guest Story",
+      "short_name": "Guest Story",
+      "description": "Create a story as a guest",
+      "url": "/#/guest",
+      "icons": [
+        {
+          "src": "/icons/guest-story-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Fesnuk Home Screen"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "360x740",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Fesnuk Mobile Home"
+    }
+  ]
+}

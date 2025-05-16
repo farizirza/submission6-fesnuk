@@ -107,6 +107,27 @@ class StoriesPresenter extends BasePresenter {
       throw error;
     }
   }
+
+  async archiveStory(story) {
+    try {
+      await this.model.archiveStoryForOffline(story);
+      showInAppNotification({
+        title: "Berhasil",
+        message: "Cerita berhasil diarsipkan untuk dilihat secara offline.",
+        type: "success",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error archiving story:", error);
+      showInAppNotification({
+        title: "Error",
+        message: `Gagal mengarsipkan cerita: ${error.message}`,
+        type: "error",
+        duration: 5000,
+      });
+      throw error;
+    }
+  }
 }
 
 export default StoriesPresenter;

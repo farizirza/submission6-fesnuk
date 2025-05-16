@@ -3,7 +3,7 @@ import CONFIG from "./config";
 // Function to request notification permission
 async function requestNotificationPermission() {
   if (!("Notification" in window)) {
-    alert("This browser does not support desktop notification");
+    console.error("This browser does not support desktop notification");
     return false;
   }
 
@@ -15,7 +15,7 @@ async function requestNotificationPermission() {
   }
 
   if (permission !== "granted") {
-    alert("You need to allow notification permission to receive notifications");
+    console.log("Notification permission not granted");
     return false;
   }
 
@@ -34,7 +34,7 @@ async function showTestNotification() {
     const notificationData = {
       title: "Story berhasil dibuat",
       options: {
-        body: "Anda telah membuat story baru dengan deskripsi: <story description>",
+        body: "Test Notification Berhasil dikirim",
       },
     };
 
@@ -45,7 +45,6 @@ async function showTestNotification() {
     console.log("Test notification sent successfully");
   } catch (error) {
     console.error("Error showing test notification:", error);
-    alert(`Error showing test notification: ${error.message}`);
   }
 }
 
@@ -91,18 +90,13 @@ async function subscribeToPushNotifications() {
       console.log("Successfully subscribed to push notifications");
       // Save subscription status in localStorage
       localStorage.setItem("notification_subscribed", "true");
-      // Show a test notification to confirm it's working
-      await showTestNotification();
-      alert("Successfully subscribed to push notifications");
     } else {
       console.error("Failed to subscribe:", data.message);
       localStorage.removeItem("notification_subscribed");
-      alert(`Failed to subscribe: ${data.message}`);
     }
   } catch (error) {
     console.error("Error subscribing to push notifications:", error);
     localStorage.removeItem("notification_subscribed");
-    alert(`Error subscribing to push notifications: ${error.message}`);
   }
 }
 
@@ -115,7 +109,6 @@ async function unsubscribeFromPushNotifications() {
     if (!subscription) {
       console.log("No subscription found to unsubscribe");
       localStorage.removeItem("notification_subscribed");
-      alert("No active subscription found");
       return;
     }
 
@@ -143,17 +136,16 @@ async function unsubscribeFromPushNotifications() {
     const data = await response.json();
     if (!data.error) {
       console.log("Successfully unsubscribed from push notifications");
-      alert("Successfully unsubscribed from push notifications");
+      // No alert here
     } else {
       console.error("Server unsubscribe error:", data.message);
       // We still consider the unsubscribe successful if the browser part worked
-      alert("Unsubscribed locally, but server reported: " + data.message);
+      console.log("Unsubscribed locally, but server reported:", data.message);
     }
   } catch (error) {
     console.error("Error unsubscribing from push notifications:", error);
     // Still remove local subscription status on error
     localStorage.removeItem("notification_subscribed");
-    alert(`Error during unsubscribe: ${error.message}`);
   }
 
   // Update UI elements even if there was an error
@@ -198,23 +190,15 @@ if ("serviceWorker" in navigator && "PushManager" in window) {
 
       // Check if user is already subscribed
       const subscription = await registration.pushManager.getSubscription();
-      const subscribeBtn = document.getElementById("subscribeBtn");
-      const unsubscribeBtn = document.getElementById("unsubscribeBtn");
 
+      // Just update localStorage, don't manipulate UI elements here
+      // This prevents double notifications and UI updates
       if (subscription) {
         console.log("User is already subscribed to push notifications");
         localStorage.setItem("notification_subscribed", "true");
-        if (subscribeBtn && unsubscribeBtn) {
-          subscribeBtn.disabled = true;
-          unsubscribeBtn.disabled = false;
-        }
       } else {
         console.log("User is not subscribed to push notifications");
         localStorage.removeItem("notification_subscribed");
-        if (subscribeBtn && unsubscribeBtn) {
-          subscribeBtn.disabled = false;
-          unsubscribeBtn.disabled = true;
-        }
       }
     } catch (error) {
       console.error("Service Worker registration failed:", error);

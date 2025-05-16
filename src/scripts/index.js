@@ -10,6 +10,7 @@ import { showInAppNotification } from "./utils/in-app-notification";
 import { setupNetworkStatusNotifier } from "./utils/network-status";
 import StoryModel from "./models/StoryModel";
 import setupSkipToContent from "./utils/skip-to-content";
+import initPWAInstall from "./utils/install-pwa";
 
 // Fix Leaflet's icon paths
 delete L.Icon.Default.prototype._getIconUrl;
@@ -24,12 +25,12 @@ L.Icon.Default.mergeOptions({
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js")
+      .register("./sw.js")
       .then((registration) => {
         console.log("SW registered:", registration);
       })
       .catch((error) => {
-        console.log("SW registration failed:", error);
+        console.error("SW registration failed:", error);
       });
   });
 }
@@ -57,8 +58,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Initialize skip to content functionality
   setupSkipToContent();
 
-  // Inisialisasi network status notifier
+  // Initialize network status notifier
   setupNetworkStatusNotifier();
+
+  // Initialize PWA installation
+  initPWAInstall();
 
   // Tangani rute default jika diperlukan
   const redirected = handleDefaultRoute();

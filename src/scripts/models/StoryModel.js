@@ -1,5 +1,12 @@
 import CONFIG from "../config";
 import { showInAppNotification } from "../utils/in-app-notification";
+import {
+  saveStory,
+  getAllStories,
+  deleteStory,
+  archiveStory,
+  getArchivedStories,
+} from "../data/idb-helper";
 
 const ENDPOINTS = {
   REGISTER: `${CONFIG.BASE_URL}/register`,
@@ -40,24 +47,80 @@ class StoryModel {
   async processQueue() {
     if (!navigator.onLine) return;
 
-    const queue = this.getQueue();
-    if (queue.length === 0) return;
+    try {
+      // Get stories from both localStorage queue and IndexedDB
+      const queue = this.getQueue();
+      const offlineStories = await getAllStories();
 
-    const newQueue = [];
+      if (queue.length === 0 && offlineStories.length === 0) return;
 
-    for (const request of queue) {
-      try {
-        if (request.type === "addStory") {
-          await this.addStory(request.data);
-        } else if (request.type === "addGuestStory") {
-          await this.addGuestStory(request.data);
+      const newQueue = [];
+      const processedStoryIds = [];
+
+      // Process localStorage queue
+      for (const request of queue) {
+        try {
+          if (request.type === "addStory") {
+            await this.addStory(request.data);
+          } else if (request.type === "addGuestStory") {
+            await this.addGuestStory(request.data);
+          }
+        } catch (error) {
+          console.error("Error processing queue item:", error);
+          newQueue.push(request);
         }
-      } catch (error) {
-        newQueue.push(request);
       }
-    }
 
-    this.saveQueue(newQueue);
+      // Process IndexedDB stories
+      for (const story of offlineStories) {
+        try {
+          if (story.type === "addStory") {
+            await this.addStory({
+              description: story.description,
+              photo: story.photoBlob,
+              lat: story.lat,
+              lon: story.lon,
+            });
+            processedStoryIds.push(story.id);
+          } else if (story.type === "addGuestStory") {
+            await this.addGuestStory({
+              description: story.description,
+              photo: story.photoBlob,
+              lat: story.lat,
+              lon: story.lon,
+            });
+            processedStoryIds.push(story.id);
+          }
+        } catch (error) {
+          console.error(`Error processing IndexedDB story ${story.id}:`, error);
+          // Don't delete from IndexedDB if there was an error
+        }
+      }
+
+      // Delete successfully processed stories from IndexedDB
+      for (const id of processedStoryIds) {
+        try {
+          await deleteStory(id);
+        } catch (error) {
+          console.error(`Error deleting story ${id} from IndexedDB:`, error);
+        }
+      }
+
+      // Update localStorage queue
+      this.saveQueue(newQueue);
+
+      // Show notification if stories were processed
+      if (processedStoryIds.length > 0) {
+        showInAppNotification({
+          title: "Cerita terkirim",
+          message: `${processedStoryIds.length} cerita offline berhasil dikirim ke server.`,
+          type: "success",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("Error in processQueue:", error);
+    }
   }
 
   // Authentication methods
@@ -219,20 +282,42 @@ class StoryModel {
       }
 
       if (!navigator.onLine) {
+        // Add to queue for later processing
         this.addToQueue({
           type: "addStory",
           data: { description, photo, lat, lon },
         });
 
-        showInAppNotification({
-          title: "Disimpan offline",
-          message:
-            "Cerita Anda akan dikirim ketika Anda terhubung ke internet lagi.",
-          type: "info",
-          duration: 5000,
-        });
+        try {
+          // Store in IndexedDB
+          const storyData = {
+            type: "addStory",
+            description,
+            photoUrl: URL.createObjectURL(photo),
+            photoBlob: photo,
+            lat,
+            lon,
+            createdAt: new Date().toISOString(),
+            status: "pending",
+          };
 
-        return { success: true, offline: true };
+          await saveStory(storyData);
+
+          showInAppNotification({
+            title: "Disimpan offline",
+            message:
+              "Cerita Anda akan dikirim ketika Anda terhubung ke internet lagi.",
+            type: "info",
+            duration: 5000,
+          });
+
+          return { success: true, offline: true, id: storyData.id };
+        } catch (error) {
+          console.error("Error saving story to IndexedDB:", error);
+          throw new Error(
+            "Gagal menyimpan cerita secara offline. " + error.message
+          );
+        }
       }
 
       const response = await fetch(ENDPOINTS.ADD_STORY, {
@@ -334,20 +419,42 @@ class StoryModel {
       }
 
       if (!navigator.onLine) {
+        // Add to queue for later processing
         this.addToQueue({
           type: "addGuestStory",
           data: { description, photo, lat, lon },
         });
 
-        showInAppNotification({
-          title: "Disimpan offline",
-          message:
-            "Cerita Anda akan dikirim ketika Anda terhubung ke internet lagi.",
-          type: "info",
-          duration: 5000,
-        });
+        try {
+          // Store in IndexedDB
+          const storyData = {
+            type: "addGuestStory",
+            description,
+            photoUrl: URL.createObjectURL(photo),
+            photoBlob: photo,
+            lat,
+            lon,
+            createdAt: new Date().toISOString(),
+            status: "pending",
+          };
 
-        return { success: true, offline: true };
+          await saveStory(storyData);
+
+          showInAppNotification({
+            title: "Disimpan offline",
+            message:
+              "Cerita Anda akan dikirim ketika Anda terhubung ke internet lagi.",
+            type: "info",
+            duration: 5000,
+          });
+
+          return { success: true, offline: true, id: storyData.id };
+        } catch (error) {
+          console.error("Error saving guest story to IndexedDB:", error);
+          throw new Error(
+            "Gagal menyimpan cerita secara offline. " + error.message
+          );
+        }
       }
 
       const response = await fetch(ENDPOINTS.ADD_GUEST_STORY, {
@@ -391,6 +498,35 @@ class StoryModel {
 
     // Redirect ke halaman login setelah logout
     window.location.hash = "#/auth";
+  }
+
+  /**
+   * Archive a story for offline viewing
+   * @param {Object} story - The story object to archive
+   * @returns {Promise} - Promise object represents the archived story ID
+   */
+  async archiveStoryForOffline(story) {
+    try {
+      // Archive the story in IndexedDB
+      const id = await archiveStory(story);
+      return { success: true, id };
+    } catch (error) {
+      console.error("Error archiving story:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all archived stories
+   * @returns {Promise} - Promise object represents the archived stories
+   */
+  async getArchivedStories() {
+    try {
+      return await getArchivedStories();
+    } catch (error) {
+      console.error("Error getting archived stories:", error);
+      throw error;
+    }
   }
 }
 

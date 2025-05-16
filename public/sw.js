@@ -1,92 +1,107 @@
-// Service Worker for handling cache and push notifications
+// Service Worker with Workbox
+importScripts(
+  "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js"
+);
+
 const CACHE_NAME = "fesnuk-v1";
 const BASE_URL = "https://story-api.dicoding.dev/v1";
 const VAPID_PUBLIC_KEY =
   "BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk";
 
-// Cache pages and assets on install
+// Use Workbox if it's available
+if (workbox) {
+  console.log("Workbox is loaded");
+
+  // Set debug mode in development
+  workbox.setConfig({ debug: false });
+
+  // Precache app shell resources
+  workbox.precaching.precacheAndRoute([
+    { url: "./", revision: "1" },
+    { url: "./index.html", revision: "1" },
+    { url: "./favicon.png", revision: "1" },
+    { url: "./manifest.json", revision: "1" },
+    { url: "./icons/icon-192x192.png", revision: "1" },
+    { url: "./icons/icon-512x512.png", revision: "1" },
+    { url: "./icons/maskable-icon.png", revision: "1" },
+  ]);
+
+  // Cache CSS, JS, and Web Fonts
+  workbox.routing.registerRoute(
+    ({ request }) =>
+      request.destination === "style" ||
+      request.destination === "script" ||
+      request.destination === "font",
+    new workbox.strategies.CacheFirst({
+      cacheName: "static-resources",
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 60,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        }),
+      ],
+    })
+  );
+
+  // Cache images
+  workbox.routing.registerRoute(
+    ({ request }) => request.destination === "image",
+    new workbox.strategies.CacheFirst({
+      cacheName: "images",
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 60,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        }),
+      ],
+    })
+  );
+
+  // API requests - Network first strategy
+  workbox.routing.registerRoute(
+    ({ url }) => url.href.includes(BASE_URL),
+    new workbox.strategies.NetworkFirst({
+      cacheName: "api-responses",
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        }),
+        new workbox.cacheableResponse.CacheableResponsePlugin({
+          statuses: [0, 200],
+        }),
+      ],
+    })
+  );
+
+  // Fallback to app shell for navigation requests
+  workbox.routing.registerRoute(
+    ({ request }) => request.mode === "navigate",
+    new workbox.strategies.NetworkFirst({
+      cacheName: "pages",
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({
+          maxEntries: 50,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        }),
+      ],
+    })
+  );
+} else {
+  console.log(
+    "Workbox could not be loaded. Offline functionality will be limited."
+  );
+}
+
+// Skip waiting and claim clients
 self.addEventListener("install", (event) => {
-  console.log("Installing Service Worker...");
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(["/", "/index.html", "/favicon.png"]);
-    })
-  );
   self.skipWaiting();
+  console.log("Service Worker installed");
 });
 
-// Clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("Activating Service Worker...");
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-// Network-first strategy for API requests, Cache-first for static assets
-self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  // Skip non-GET requests
-  if (event.request.method !== "GET") {
-    return;
-  }
-
-  // For API requests - Network first strategy
-  if (url.href.includes(BASE_URL)) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Cache the response
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        })
-        .catch(() => {
-          // If network fails, try to serve from cache
-          return caches.match(event.request);
-        })
-    );
-  } else {
-    // For other requests - Cache first strategy
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        // Return cached response if found
-        if (response) {
-          return response;
-        }
-
-        // Otherwise fetch from network
-        return fetch(event.request).then((fetchResponse) => {
-          // Don't cache non-successful responses
-          if (
-            !fetchResponse ||
-            fetchResponse.status !== 200 ||
-            fetchResponse.type !== "basic"
-          ) {
-            return fetchResponse;
-          }
-
-          // Cache the response
-          const responseToCache = fetchResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-
-          return fetchResponse;
-        });
-      })
-    );
-  }
+  event.waitUntil(clients.claim());
+  console.log("Service Worker activated");
 });
 
 // Handle push notifications

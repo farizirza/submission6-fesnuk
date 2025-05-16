@@ -52,11 +52,11 @@ class DetailStoryPage {
     mainContent.innerHTML = `
       <article class="story-detail-content">
         <h1 class="story-title">Cerita dari ${story.name}</h1>
-        
+
         <img src="${story.photoUrl}" alt="Foto oleh ${
       story.name
     }" class="story-detail-image">
-        
+
         <div class="story-meta">
           <p class="story-author">${story.name}</p>
           <p class="story-date">${showFormattedDate(story.createdAt)}</p>
@@ -67,12 +67,30 @@ class DetailStoryPage {
         ${
           story.lat && story.lon ? '<div id="map" class="story-map"></div>' : ""
         }
-        
-        <a href="#/" class="back-button">
-          <i class="fas fa-arrow-left"></i> Kembali ke Daftar Cerita
-        </a>
+
+        <div class="story-actions">
+          <button id="archiveStoryBtn" class="action-button archive-button">
+            <i class="fas fa-archive"></i> Arsipkan untuk Offline
+          </button>
+
+          <a href="#/" class="back-button">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Cerita
+          </a>
+        </div>
       </article>
     `;
+
+    // Add event listener for archive button
+    const archiveBtn = document.getElementById("archiveStoryBtn");
+    if (archiveBtn) {
+      archiveBtn.addEventListener("click", async () => {
+        try {
+          await this.presenter.archiveStory(story);
+        } catch (error) {
+          console.error("Error archiving story:", error);
+        }
+      });
+    }
   }
 
   renderError(message) {

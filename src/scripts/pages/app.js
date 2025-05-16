@@ -1,4 +1,4 @@
-import routes from "../routes/routes";
+import { getRoute } from "../routes/routes";
 import { getActiveRoute } from "../routes/url-parser";
 import { showInAppNotification } from "../utils/in-app-notification";
 
@@ -98,14 +98,15 @@ class App {
       // Get current active route/URL
       const url = getActiveRoute();
 
-      // Redirect to default route if URL is not valid
-      if (!url || !routes[url]) {
-        console.log("Route not found, redirecting to default page");
+      // If URL is completely empty, redirect to default route
+      if (!url) {
+        console.log("Empty route, redirecting to default page");
         window.location.hash = this.#storyModel.getToken() ? "#/" : "#/auth";
         return;
       }
 
-      const page = routes[url];
+      // Get the page handler (will return NotFoundPage if route doesn't exist)
+      const page = getRoute(url);
 
       // Initialize the page with the story model if it's a factory function
       const pageInstance =

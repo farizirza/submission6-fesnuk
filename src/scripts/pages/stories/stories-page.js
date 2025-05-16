@@ -12,7 +12,7 @@ class StoriesPage {
     return `
       <section class="container">
         <h1 class="app-title">Cerita Pengguna</h1>
-        
+
         <div class="skip-link">
           <a href="#main-story-content" class="skip-to-content">Skip to Content</a>
         </div>
@@ -427,7 +427,28 @@ class StoriesPage {
           )}</p>
         </div>
       </a>
+      <button class="archive-story-btn" data-id="${
+        story.id
+      }" title="Arsipkan cerita untuk dilihat offline">
+        <i class="fas fa-archive"></i>
+      </button>
     `;
+
+    // Add event listener for archive button
+    setTimeout(() => {
+      const archiveBtn = article.querySelector(".archive-story-btn");
+      if (archiveBtn) {
+        archiveBtn.addEventListener("click", async (event) => {
+          event.stopPropagation();
+          try {
+            await this.presenter.archiveStory(story);
+          } catch (error) {
+            console.error("Error archiving story:", error);
+          }
+        });
+      }
+    }, 0);
+
     return article;
   }
 }

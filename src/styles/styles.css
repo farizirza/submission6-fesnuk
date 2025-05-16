@@ -188,11 +188,16 @@ header {
   box-shadow: var(--card-shadow);
   transition: all var(--transition-speed);
   animation: fadeIn 0.6s ease-out;
+  position: relative;
 }
 
 .story-item:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-hover-shadow);
+}
+
+.story-item:hover .archive-story-btn {
+  opacity: 1;
 }
 
 .story-image {
@@ -744,6 +749,14 @@ header {
   color: var(--text-color);
 }
 
+.story-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.action-button,
 .back-button {
   display: inline-flex;
   align-items: center;
@@ -756,11 +769,24 @@ header {
   font-weight: 500;
   transition: all var(--transition-speed);
   border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .back-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
   transform: translateX(-4px);
+}
+
+.archive-button {
+  background-color: #e8f4fd;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.archive-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .loading-indicator {
@@ -1115,6 +1141,347 @@ header {
 .notification-note {
   background-color: #fffaed;
   border-left: 4px solid #ffd166;
+}
+
+/* Offline Stories Page Styles */
+.offline-stories-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.offline-info {
+  background-color: #e8f4fd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.offline-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  margin: 2rem 0 1rem;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  border-bottom: 2px solid #e8f4fd;
+  padding-bottom: 0.5rem;
+}
+
+.archive-tip {
+  font-style: italic;
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.offline-story-card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: transform 0.2s ease;
+}
+
+.offline-story-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.offline-story-card.pending-story {
+  border-left: 4px solid #ffd166;
+}
+
+.offline-story-card.archived-story {
+  border-left: 4px solid var(--primary-color);
+}
+
+.offline-story-content {
+  flex: 1;
+}
+
+.offline-story-content h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.story-image-container {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 200px;
+}
+
+.story-thumbnail {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.story-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.story-type {
+  background-color: #e8f4fd;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: var(--primary-color);
+}
+
+.story-status {
+  background-color: #fff3cd;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: #856404;
+}
+
+.story-location {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.offline-story-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.delete-story-btn,
+.delete-archived-btn {
+  background-color: #ffebee;
+  color: var(--accent-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-story-btn:hover,
+.delete-archived-btn:hover {
+  background-color: #ffcdd2;
+}
+
+.view-story-btn {
+  background-color: #e8f4fd;
+  color: var(--primary-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-story-btn:hover {
+  background-color: #c7e6fd;
+}
+
+/* Archive button in story cards */
+.archive-story-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--primary-color);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  opacity: 0;
+}
+
+.archive-story-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Story modal for viewing archived stories */
+.story-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.story-modal-content {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+  color: var(--accent-color);
+}
+
+.story-modal-image {
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.full-story-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.story-modal-details {
+  margin-top: 1.5rem;
+}
+
+.story-map {
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.no-stories-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--card-background);
+  border-radius: 8px;
+  margin: 2rem auto;
+  box-shadow: var(--card-shadow);
+}
+
+/* Not Found Page Styles */
+.not-found-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  text-align: center;
+}
+
+.not-found-content {
+  max-width: 500px;
+  padding: 3rem 2rem;
+  background: var(--card-background);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.not-found-title {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.not-found-subtitle {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.not-found-message {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* PWA styles are now only in the About page section */
+
+/* About Page PWA Section */
+.pwa-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #e8f4fd;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.pwa-section h3 {
+  margin-bottom: 0.75rem;
+  color: var(--primary-color);
+}
+
+.pwa-section p {
+  margin-bottom: 1rem;
+}
+
+.pwa-section .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.pwa-section .btn:hover {
+  background-color: #1557b0;
+  transform: translateY(-2px);
+}
+
+.pwa-section .btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .notification-status {
